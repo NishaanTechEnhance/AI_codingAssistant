@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coding Assistant 🧑‍💻</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>Coding Assistant 🧑‍💻</h1>
+            <form method="POST" enctype="multipart/form-data" onsubmit="showSpinner()">
+                <div class="form-group">
+                    <label for="code_input">Paste your code snippet here:</label>
+                    <textarea id="code_input" name="code_input" rows="10">{{ request.form.get('code_input', '') }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="uploaded_file">Or upload a code file:</label>
+                    <input type="file" id="uploaded_file" name="uploaded_file">
+                </div>
+                <div class="form-group">
+                    <label for="criteria_selected">Select Criteria:</label>
+                    <select id="criteria_selected" name="criteria_selected">
+                        {% for option in criteria_options %}
+                        <option value="{{ option }}" {% if request.form.get('criteria_selected') == option %}selected{% endif %}>{{ option }}</option>
+                        {% endfor %}
+                    </select>
+                    <p>{{ criteria_descriptions.get(request.form.get('criteria_selected', criteria_options[0]), '') }}</p>
+                </div>
+                <button type="submit">Generate Code Description</button>
+            </form>
+        </div>
+        <div class="content">
+            <div id="spinner" class="spinner-container" style="display: none;">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Generating response...</div>
+            </div>
+            {% if output %}
+            <div class="output">
+                <h2>Description:</h2>
+                <pre>{{ output }}</pre>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        function showSpinner() {
+            document.getElementById('spinner').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
