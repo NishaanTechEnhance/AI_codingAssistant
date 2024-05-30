@@ -66,4 +66,4 @@ jobs:
         with:
           app-name: 'AICodingAssistant'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A71A580C74E145A5BAAF71BC80E87A1D }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_0611F33B2E844CE3A69A8DDC189EFD07 }}
