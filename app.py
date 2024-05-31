@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 app = Flask(__name__)
 load_dotenv()
 
-app.config['ENV'] = 'production'
+
 
 api_key = os.getenv("AZURE_OPENAI_API_KEY")
 azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
