@@ -8,8 +8,6 @@ from dotenv import load_dotenv
 app = Flask(__name__)
 load_dotenv()
 
-
-
 api_key = os.getenv("AZURE_OPENAI_API_KEY")
 azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
 deployment_name = os.getenv("DEPLOYMENT_NAME")
@@ -69,9 +67,9 @@ def call_openai_chat_completion(model, messages):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        code_input = request.form['code_input']
-        criteria_selected = request.form['criteria_selected']
-        uploaded_file = request.files['uploaded_file']
+        code_input = request.form.get('code_input', '')
+        criteria_selected = request.form.get('criteria_selected', '')
+        uploaded_file = request.files.get('uploaded_file')
         
         if uploaded_file:
             code_input = uploaded_file.read().decode("utf-8")
