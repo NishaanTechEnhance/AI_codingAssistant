@@ -11,6 +11,7 @@
         <div class="sidebar">
             <h1>Coding Assistant 🧑‍💻</h1>
             <form method="POST" enctype="multipart/form-data" onsubmit="showSpinner()">
+                <input type="hidden" id="criteria_descriptions" value='{{ criteria_descriptions | tojson | safe }}'>
                 <div class="form-group">
                     <label for="code_input">Paste your code snippet here:</label>
                     <textarea id="code_input" name="code_input" rows="10" oninput="handleTextareaInput()">{{ request.form.get('code_input', '') }}</textarea>
@@ -45,7 +46,7 @@
         </div>
     </div>
     <script>
-        const criteriaDescriptions = {{ criteria_descriptions | tojson | safe }};
+        const criteriaDescriptions = JSON.parse(document.getElementById('criteria_descriptions').value);
         
         function showSpinner() {
             document.getElementById('spinner').style.display = 'flex';
