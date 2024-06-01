@@ -13,22 +13,22 @@
             <form method="POST" enctype="multipart/form-data" onsubmit="showSpinner()">
                 <div class="form-group">
                     <label for="code_input">Paste your code snippet here:</label>
-                    <textarea id="code_input" name="code_input" rows="10">{{ request.form.get('code_input', '') }}</textarea>
+                    <textarea id="code_input" name="code_input" rows="10" oninput="handleTextareaInput()">{{ request.form.get('code_input', '') }}</textarea>
                 </div>
                 <div class="form-group">
                     <label for="uploaded_file">Or upload a code file:</label>
-                    <input type="file" id="uploaded_file" name="uploaded_file">
+                    <input type="file" id="uploaded_file" name="uploaded_file" onchange="handleFileUpload()">
                 </div>
                 <div class="form-group">
                     <label for="criteria_selected">Select Criteria:</label>
-                    <select id="criteria_selected" name="criteria_selected">
+                    <select id="criteria_selected" name="criteria_selected" onchange="updateDescription()">
                         {% for option in criteria_options %}
                         <option value="{{ option }}" {% if request.form.get('criteria_selected') == option %}selected{% endif %}>{{ option }}</option>
                         {% endfor %}
                     </select>
-                    <p>{{ criteria_descriptions.get(request.form.get('criteria_selected', criteria_options[0]), '') }}</p>
+                    <p id="criteria_description">{{ criteria_descriptions.get(request.form.get('criteria_selected', criteria_options[0]), '') }}</p>
                 </div>
-                <button type="submit">Generate Code Description</button>
+                <button type="submit">Submit</button>
             </form>
         </div>
         <div class="content">
@@ -45,8 +45,36 @@
         </div>
     </div>
     <script>
+        const criteriaDescriptions = {{ criteria_descriptions | tojson | safe }};
+        
         function showSpinner() {
             document.getElementById('spinner').style.display = 'flex';
+        }
+        
+        function updateDescription() {
+            const criteriaSelected = document.getElementById('criteria_selected').value;
+            const description = criteriaDescriptions[criteriaSelected];
+            document.getElementById('criteria_description').innerText = description;
+        }
+
+        function handleTextareaInput() {
+            const textarea = document.getElementById('code_input');
+            const fileInput = document.getElementById('uploaded_file');
+            if (textarea.value.length > 0) {
+                fileInput.disabled = true;
+            } else {
+                fileInput.disabled = false;
+            }
+        }
+
+        function handleFileUpload() {
+            const textarea = document.getElementById('code_input');
+            const fileInput = document.getElementById('uploaded_file');
+            if (fileInput.files.length > 0) {
+                textarea.disabled = true;
+            } else {
+                textarea.disabled = false;
+            }
         }
     </script>
 </body>
