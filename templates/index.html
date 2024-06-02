@@ -10,10 +10,10 @@
     <div class="container">
         <div class="sidebar">
             <h1>Coding Assistant 🧑‍💻</h1>
-            <form method="POST" enctype="multipart/form-data" onsubmit="showSpinner()">
+            <form id="codingForm" method="POST" enctype="multipart/form-data" onsubmit="handleSubmit()">
                 <input type="hidden" id="criteria_descriptions" value='{{ criteria_descriptions | tojson | safe }}'>
                 <div class="form-group">
-                    <label for="code_input">Paste your code snippet here:</label>
+                    <label id="code_input_label" for="code_input">Paste your code snippet here:</label>
                     <textarea id="code_input" name="code_input" rows="10" oninput="handleTextareaInput()">{{ request.form.get('code_input', '') }}</textarea>
                 </div>
                 <div class="form-group">
@@ -27,9 +27,10 @@
                         <option value="{{ option }}" {% if request.form.get('criteria_selected') == option %}selected{% endif %}>{{ option }}</option>
                         {% endfor %}
                     </select>
-                    <p id="criteria_description">{{ criteria_descriptions.get(request.form.get('criteria_selected', criteria_options[0]), '') }}</p>
+                    <p id="criteria_description">{{ criteria_descriptions.get(request.form.get('criteria_selected', ''), '') }}</p>
                 </div>
                 <button type="submit">Submit</button>
+                <button type="button" class="refresh-button" onclick="resetForm()">Refresh</button>
             </form>
         </div>
         <div class="content">
@@ -40,43 +41,87 @@
             {% if output %}
             <div class="output">
                 <h2>Description:</h2>
-                <pre>{{ output }}</pre>
+                <pre id="responseOutput">{{ output }}</pre>
             </div>
             {% endif %}
         </div>
     </div>
     <script>
-        const criteriaDescriptions = JSON.parse(document.getElementById('criteria_descriptions').value);
-        
-        function showSpinner() {
-            document.getElementById('spinner').style.display = 'flex';
-        }
-        
-        function updateDescription() {
-            const criteriaSelected = document.getElementById('criteria_selected').value;
-            const description = criteriaDescriptions[criteriaSelected];
-            document.getElementById('criteria_description').innerText = description;
-        }
+        document.addEventListener("DOMContentLoaded", function() {
+            const criteriaDescriptions = JSON.parse(document.getElementById('criteria_descriptions').value);
 
-        function handleTextareaInput() {
-            const textarea = document.getElementById('code_input');
-            const fileInput = document.getElementById('uploaded_file');
-            if (textarea.value.length > 0) {
-                fileInput.disabled = true;
-            } else {
-                fileInput.disabled = false;
+            window.showSpinner = function() {
+                document.getElementById('spinner').style.display = 'flex';
             }
-        }
 
-        function handleFileUpload() {
-            const textarea = document.getElementById('code_input');
-            const fileInput = document.getElementById('uploaded_file');
-            if (fileInput.files.length > 0) {
-                textarea.disabled = true;
-            } else {
-                textarea.disabled = false;
+            function disableInputs() {
+                document.getElementById('code_input').disabled = true;
+                document.getElementById('uploaded_file').disabled = true;
+                document.getElementById('criteria_selected').disabled = true;
             }
-        }
+
+            function updateDescription() {
+                const criteriaSelected = document.getElementById('criteria_selected').value;
+                const description = criteriaDescriptions[criteriaSelected];
+                document.getElementById('criteria_description').innerText = description;
+
+                const codeInputLabel = document.getElementById('code_input_label');
+                const fileInput = document.getElementById('uploaded_file');
+
+                if (criteriaSelected === "Code generation") {
+                    codeInputLabel.innerText = "Enter your prompt:";
+                    fileInput.disabled = true;
+                } else {
+                    codeInputLabel.innerText = "Paste your code snippet here:";
+                    fileInput.disabled = false;
+                }
+            }
+
+            function handleTextareaInput() {
+                const textarea = document.getElementById('code_input');
+                const fileInput = document.getElementById('uploaded_file');
+                if (textarea.value.length > 0) {
+                    fileInput.disabled = true;
+                } else {
+                    fileInput.disabled = false;
+                }
+            }
+
+            function handleFileUpload() {
+                const textarea = document.getElementById('code_input');
+                const fileInput = document.getElementById('uploaded_file');
+                if (fileInput.files.length > 0) {
+                    textarea.disabled = true;
+                } else {
+                    textarea.disabled = false;
+                }
+            }
+
+            function resetForm() {
+                document.getElementById('codingForm').reset();
+                document.getElementById('code_input').value = '';
+                document.getElementById('code_input').disabled = false;
+                document.getElementById('uploaded_file').disabled = false;
+                document.getElementById('criteria_selected').disabled = false;
+                document.getElementById('criteria_description').innerText = '';
+                if (document.getElementById('responseOutput')) {
+                    document.getElementById('responseOutput').innerText = '';
+                }
+                updateDescription();
+            }
+
+            function handleSubmit() {
+                showSpinner();
+                setTimeout(disableInputs, 750); 
+            }
+
+            document.getElementById('criteria_selected').addEventListener('change', updateDescription);
+            document.getElementById('code_input').addEventListener('input', handleTextareaInput);
+            document.getElementById('uploaded_file').addEventListener('change', handleFileUpload);
+
+            window.resetForm = resetForm;
+            window.handleSubmit = handleSubmit;
+        });
     </script>
 </body>
 </html>
