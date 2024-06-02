@@ -19,33 +19,24 @@ client = AzureOpenAI(
 )
 
 criteria_options = [
-    "Code generation",
     "Code optimization",
+    "Code generation",
     "Code debugging",
-    "Code analysis",
-    "Code documentation",
-    "Code testing",
-    "Code collaboration"
+    "Code testing"
 ]
 
 criteria_descriptions = {
-    "Code generation": "Generate detailed correct code according to the prompt.",
     "Code optimization": "Improve the performance, readability, and maintainability of the code.",
+    "Code generation": "Generate detailed correct code according to the prompt.",
     "Code debugging": "Identify and fix errors in the code, and provide suggestions for improvement.",
-    "Code analysis": "Identify patterns, trends, and areas for improvement in the code.",
-    "Code documentation": "Evaluate and suggest improvements for the code documentation.",
-    "Code testing": "Provide suggestions for writing and executing unit tests and testing strategies.",
-    "Code collaboration": "Provide suggestions for collaborating with developers on code projects."
+    "Code testing": "Provide suggestions for writing and executing unit tests and testing strategies."
 }
 
 prompts = {
-    "Code generation": "Analyze the given prompt and generate detailed correct code according to the prompt.",
     "Code optimization": "Analyze the existing code to improve its performance, readability, and maintainability.",
+    "Code generation": "Analyze the given prompt and generate detailed correct code according to the prompt.",
     "Code debugging": "Identify and fix errors in the code, and provide suggestions for improvement.",
-    "Code analysis": "Analyze the code to identify patterns, trends, and areas for improvement.",
-    "Code documentation": "Evaluate the documentation of the code, including comments, documentation blocks, and other forms of documentation.",
-    "Code testing": "Provide suggestions for writing and executing unit tests, as well as testing strategies.",
-    "Code collaboration": "Provide suggestions for collaborating with developers on code projects, ensuring high quality and meeting project requirements."
+    "Code testing": "Provide suggestions for writing and executing unit tests, as well as testing strategies."
 }
 
 def remove_comments(code):
@@ -68,14 +59,14 @@ def call_openai_chat_completion(model, messages):
 def index():
     if request.method == 'POST':
         code_input = request.form.get('code_input', '')
-        criteria_selected = request.form.get('criteria_selected', '')
+        criteria_selected = request.form.get('criteria_selected')
         uploaded_file = request.files.get('uploaded_file')
         
-        if uploaded_file:
+        if uploaded_file and uploaded_file.filename:
             code_input = uploaded_file.read().decode("utf-8")
         
         code_input = remove_comments(code_input)
-        prompt = prompts[criteria_selected]
+        prompt = prompts.get(criteria_selected, "")
         messages = [
             {"role": "system", "content": "You are a helpful coding assistant."},
             {"role": "user", "content": f"User provided code:\n{code_input}"},
